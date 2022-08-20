@@ -1,0 +1,120 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web socks</title>
+</head>
+<body style="width: 40%; margin:auto; padding-top:50px;" >
+  <ul id="body" style="list-style-type: none;">
+    <p id="connect">not connected</p>
+    
+  </ul>
+  <form id="form2">
+    <input type="submit" value="connect" />
+    <input type="text" placeholder="enter id" id="mfsg" autofocus />
+</form>
+  </p>
+  <form style="display: none" id="form">
+    <input type="submit" value="Send" />
+    <input type="text" id="msg"  autofocus />
+</form>
+</body>
+<script>
+  function connectChat(idd) {
+    
+  
+    var id = "henry"
+    webSocket = new WebSocket(`ws://localhost:8080/ws?id=${idd}`);
+
+    webSocket.onopen = function(evt) {
+        console.log(evt)
+        document.getElementById("connect").innerText = `connected to chat as ${idd}`
+        document.getElementById("form2").style = "display: none"
+        document.getElementById("form").style = "display: visible"
+    }
+
+    webSocket.onclose = function(evt) {
+            webSocket = null
+        }
+        webSocket.onmessage = function(evt) {
+          var body = document.getElementById("body")
+          var list = document.createElement("li")
+          
+          
+          
+
+          console.log(evt)
+          var obj = JSON.parse(evt.data);
+
+          console.log(obj)
+          if(obj.client_id == idd){
+            list.classList.add("messages")
+          } else {
+            list.classList.add("messages2")
+          }
+          
+
+          list.innerHTML = obj.message
+
+          body.appendChild(list)
+          
+        }
+        webSocket.onerror = function(evt) {
+           
+        }
+  
+  
+  }
+       
+       
+
+        document.getElementById("form").onsubmit = function () {
+        if (!webSocket) {
+            return false;
+        }
+        if (!msg.value) {
+            return false;
+        }
+        webSocket.send(msg.value);
+        msg.value = "";
+        return false;
+    };
+    document.getElementById("form2").onsubmit = function (evt) {
+      evt.preventDefault()
+      console.log(evt)
+       connectChat(mfsg.value)
+    };
+
+</script>
+<style>
+  ul{
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+  }
+  .messages {
+    background: #d8e6ff;
+    padding: 3px 10px;
+    border-radius: 5px 5px 5px 0px;
+    width: fit-content;
+    margin-bottom: 10px;
+  }
+  .messages2 {
+    background: #ffc3ed;
+    padding: 3px 10px;
+    border-radius: 5px 5px 0px 5px;
+    width: fit-content;
+    margin-bottom: 10px;
+    /* margin-right: auto; */
+    align-self: flex-end;
+  }
+  form{
+    display: flex;
+  }
+  input[text]{
+    width: 100%;
+    margin-left: 5px;
+  }
+</style>
+</html>
